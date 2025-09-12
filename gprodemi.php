@@ -30,7 +30,7 @@ $UpdateChecker = PucFactory::buildUpdateChecker(
 	'gprodemi'
 );
 
-$UpdateChecker->setBranch('main');
+$UpdateChecker->setBranch('master');
 
 define('GPRODEMI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GPRODEMI_PLUGIN_FILE', __FILE__);
