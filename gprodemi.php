@@ -20,7 +20,7 @@ if (! file_exists(__DIR__ . '/vendor/autoload.php')) {
 	return;
 }
 
-require 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
