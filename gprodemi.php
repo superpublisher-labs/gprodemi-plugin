@@ -1,9 +1,25 @@
 <?php
 
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+if (!class_exists(PucFactory::class) && file_exists(__DIR__ . '/vendor/autoload.php')) {
+	require_once __DIR__ . '/vendor/autoload.php';
+}
+
+if (class_exists(PucFactory::class)) {
+	$UpdateChecker = PucFactory::buildUpdateChecker(
+		'https://github.com/superpublisher-labs/gprodemi-plugin',
+		__FILE__,
+		'gprodemi'
+	);
+
+	$UpdateChecker->setBranch('master');
+}
+
 /**
  * Plugin Name: GProdemi
  * Description: Plugin grupo Prodemi.
- * Version: 0.0.1
+ * Version: 0.0.2
  * Author: Prodemi
  * Author URI: https://prodemi.com.br
  * License: GPL2
@@ -15,22 +31,6 @@
 if (! defined('ABSPATH')) {
 	exit;
 }
-
-if (! file_exists(__DIR__ . '/vendor/autoload.php')) {
-	return;
-}
-
-require_once __DIR__ . '/vendor/autoload.php';
-
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-
-$UpdateChecker = PucFactory::buildUpdateChecker(
-	'https://github.com/superpublisher-labs/gprodemi-plugin',
-	__FILE__,
-	'gprodemi'
-);
-
-$UpdateChecker->setBranch('master');
 
 define('GPRODEMI_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GPRODEMI_PLUGIN_FILE', __FILE__);
@@ -60,4 +60,3 @@ register_deactivation_hook(__FILE__, 'gprodemi_desativar_plugin');
 
 require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-admin-page.php';
 require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-blocks.php';
-

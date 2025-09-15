@@ -16,10 +16,10 @@ add_action('admin_menu', function () {
 function gprodemi_admin_page()
 {
     // Pega valores atuais, default 0 (desabilitado)
-    $links_block_active = get_option('gprodemi_links_block', 0);
-    $links_related_active = get_option('gprodemi_links_related', 0);
-    $read_more_active = get_option('gprodemi_read_more', 0);
-    $faq_block_active = get_option('gprodemi_faq_block', 0);
+    $links_block_active = get_option('gprodemi_links_block', 1);
+    $links_related_active = get_option('gprodemi_links_related', 1);
+    $read_more_active = get_option('gprodemi_read_more', 1);
+    $faq_block_active = get_option('gprodemi_faq_block', 1);
 
     // Salva se o formulário for enviado
     if (isset($_POST['save_gprodemi_blocks'])) {

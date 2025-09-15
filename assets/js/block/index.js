@@ -31,7 +31,7 @@ const targetLocation = (redirect) => {
 };
 
 function getRedirectMessage(redirect) {
-    const idioma = dict[wpSettings.idioma] || dict.default;
+    const idioma = dict[GProdemiSettings.idioma] || dict.default;
     return idioma.rediret[String(redirect || false)];
 }
 
@@ -460,17 +460,24 @@ if (GProdemiSettings.blocks.readMore) {
             const links = attributes.links || [];
             return createElement(
                 'div',
-                { className: 'linksInternos' },
-                ...links.map((link, index) =>
-                    createElement(
-                        'a',
-                        { key: index, href: link.url, className: 'linksInternos-a', target: targetLocation(attributes.redirect) },
-                        link.titulo
-                    )
+                null,
+                createElement(
+                    'div',
+                    { className: 'leiaTambem' },
+                    createElement('span', { className: 'leiaTambem-t1' }, attributes.title),
+                    createElement('div', { className: 'leiaTambem-links' },
+                        ...links.map((link, index) =>
+                            createElement(
+                                'a',
+                                { key: index, href: link.url, className: 'leiaTambem-link', target: '_blank' },
+                                link.titulo
+                            )
+                        ),
+                    ),
                 ),
                 createElement(
                     'div',
-                    { className: 'blocoApps-t4' },
+                    { className: 'leiaTambem-footer' },
                     getRedirectMessage(attributes.redirect),
                 ),
             );
