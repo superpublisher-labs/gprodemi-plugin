@@ -54,6 +54,16 @@ if (GProdemiSettings.blocks.linksBlock) {
             },
         },
 
+        example: {
+            attributes: {
+                links: [
+                    { titulo: 'Clique aqui para ir ao site 1', url: '#1' },
+                    { titulo: 'Clique aqui para ir ao site 2', url: '#2' }
+                ],
+                redirect: false,
+            },
+        },
+
         edit: ({ attributes, setAttributes, clientId }) => {
             const links = attributes.links || [];
 
@@ -196,6 +206,19 @@ if (GProdemiSettings.blocks.linksRelated) {
             redirect: {
                 type: 'boolean',
                 default: false,
+            },
+        },
+
+        example: {
+            attributes: {
+                imageID: 0,
+                imageURL: GProdemiSettings.placeholderImage,
+                link: '#',
+                subtitle: 'Um ',
+                title: 'Título',
+                description: 'Descrição...',
+                cta: 'CTA',
+                redirect: false,
             },
         },
 
@@ -352,6 +375,17 @@ if (GProdemiSettings.blocks.readMore) {
             },
         },
 
+        example: {
+            attributes: {
+                title: 'Leia Também',
+                links: [
+                    { titulo: 'Clique aqui para ir ao site 1', url: '#1' },
+                    { titulo: 'Clique aqui para ir ao site 2', url: '#2' }
+                ],
+                redirect: false,
+            },
+        },
+
         edit: ({ attributes, setAttributes, clientId }) => {
             const links = attributes.links || [];
 
@@ -500,6 +534,21 @@ if (GProdemiSettings.blocks.faqBlock) {
             },
         },
 
+        example: {
+            attributes: {
+                questions: [
+                    {
+                        titulo: 'Esta é uma pergunta de exemplo?',
+                        answer: 'Sim, esta é uma resposta de exemplo para mostrar como o bloco ficará.'
+                    },
+                    {
+                        titulo: 'Posso adicionar mais de uma?',
+                        answer: 'Com certeza! O preview mostrará todos os itens que você colocar aqui.'
+                    }
+                ]
+            }
+        },
+
         edit: ({ attributes, setAttributes, clientId }) => {
             const questions = attributes.questions || [];
 
@@ -571,7 +620,7 @@ if (GProdemiSettings.blocks.faqBlock) {
                 createElement(
                     'div',
                     { className: 'wp-block-gprodemi-faq-block' },
-                    createElement('h3', { className: 'faq-title' }, 'FAQ:'),
+                    createElement('h2', { className: 'faq-title' }, 'FAQ:'),
                     createElement('div', { className: 'faq-container', 'data-faq-container': true },
                         ...questions.map((quest, index) =>
                             createElement(
@@ -591,7 +640,7 @@ if (GProdemiSettings.blocks.faqBlock) {
             return createElement(
                 'div',
                 { className: 'wp-block-gprodemi-faq-block' },
-                createElement('h3', { className: 'faq-title' }, 'FAQ:'),
+                createElement('h2', { className: 'faq-title' }, 'FAQ:'),
                 createElement('div', { className: 'faq-container', 'data-faq-container': true },
                     ...questions.map((quest, index) =>
                         createElement(
