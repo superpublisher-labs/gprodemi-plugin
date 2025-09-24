@@ -31,10 +31,10 @@ function gprodemi_admin_page()
         echo '<div class="notice notice-success"><p>Configurações salvas!</p></div>';
 
         // Atualiza os valores para refletir na página
-        $links_block_active = get_option('gprodemi_links_block', 0);
-        $links_related_active = get_option('gprodemi_links_related', 0);
-        $read_more_active = get_option('gprodemi_read_more', 0);
-        $faq_block_active = get_option('gprodemi_faq_block', 0);
+        $links_block_active = get_option('gprodemi_links_block', 1);
+        $links_related_active = get_option('gprodemi_links_related', 1);
+        $read_more_active = get_option('gprodemi_read_more', 1);
+        $faq_block_active = get_option('gprodemi_faq_block', 1);
     }
 ?>
     <div class="wrap">

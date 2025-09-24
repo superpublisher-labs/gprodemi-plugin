@@ -42,20 +42,20 @@ add_action('enqueue_block_editor_assets', function () {
     wp_localize_script('gprodemi-script', 'GProdemiSettings', [
         'placeholderImage' => plugin_dir_url(__FILE__) . '../assets/img/placeholder.webp',
         'blocks' => [
-            'linksBlock'    => get_option('gprodemi_links_block', 0),
-            'linksRelated'  => get_option('gprodemi_links_related', 0),
-            'readMore'      => get_option('gprodemi_read_more', 0),
-            'faqBlock'      => get_option('gprodemi_faq_block', 0),
+            'linksBlock'    => get_option('gprodemi_links_block', 1),
+            'linksRelated'  => get_option('gprodemi_links_related', 1),
+            'readMore'      => get_option('gprodemi_read_more', 1),
+            'faqBlock'      => get_option('gprodemi_faq_block', 1),
         ]
     ]);
 });
 
 add_action('init', function () {
     $blocks = [
-        'gprodemi/links-block'    => get_option('gprodemi_links_block', 0),
-        'gprodemi/links-related'  => get_option('gprodemi_links_related', 0),
-        'gprodemi/read-more'      => get_option('gprodemi_read_more', 0),
-        'gprodemi/faq-block'      => get_option('gprodemi_faq_block', 0),
+        'gprodemi/links-block'    => get_option('gprodemi_links_block', 1),
+        'gprodemi/links-related'  => get_option('gprodemi_links_related', 1),
+        'gprodemi/read-more'      => get_option('gprodemi_read_more', 1),
+        'gprodemi/faq-block'      => get_option('gprodemi_faq_block', 1),
     ];
 
     foreach ($blocks as $block_name => $active) {
