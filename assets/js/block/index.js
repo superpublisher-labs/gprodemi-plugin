@@ -6,13 +6,13 @@ const { MediaUpload, MediaUploadCheck } = wp.blockEditor || wp.editor;
 const { __ } = wp.i18n;
 
 const dict = {
-    'pt-BR': {
+    'pt': {
         rediret: {
             true: 'Você será redirecionado para outro site',
             false: 'Você permanecerá no mesmo site'
         },
     },
-    'es-ES': {
+    'es': {
         rediret: {
             true: 'Te redirigirás a otro sitio',
             false: 'Permanecerás en el mismo sitio'
@@ -27,11 +27,14 @@ const dict = {
 };
 
 const targetLocation = (redirect) => {
-    return redirect ? '_blank' : '_self'
+    return redirect ? '_blank' : '_self';
 };
 
 function getRedirectMessage(redirect) {
-    const idioma = dict[GProdemiSettings.idioma] || dict.default;
+    const fullLocale = GProdemiSettings.idioma || 'default';
+    const langCode = fullLocale.substring(0, 2);
+    const idioma = dict[langCode] || dict.default;
+    
     return idioma.rediret[String(redirect || false)];
 }
 

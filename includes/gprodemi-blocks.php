@@ -40,6 +40,7 @@ add_action('enqueue_block_editor_assets', function () {
     );
 
     wp_localize_script('gprodemi-script', 'GProdemiSettings', [
+        'idioma' => get_locale(),
         'placeholderImage' => plugin_dir_url(__FILE__) . '../assets/img/placeholder.webp',
         'blocks' => [
             'linksBlock'    => get_option('gprodemi_links_block', 1),
