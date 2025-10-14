@@ -714,7 +714,7 @@ if (GProdemiSettings.blocks.soccerBlock) {
 
                 setIsLoading(true);
                 const timeout = setTimeout(() => {
-                    fetch(`https://soccer-api.test/api/v1/teams?name=${encodeURIComponent(search)}`)
+                    fetch(`${GProdemiSettings.blocks.soccerBlockUrl}/teams?name=${encodeURIComponent(search)}`)
                         .then(res => res.json())
                         .then(data => {
                             const formattedOptions = data.map(team => ({
