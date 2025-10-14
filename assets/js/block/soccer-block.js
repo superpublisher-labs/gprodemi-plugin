@@ -82,8 +82,10 @@ function updateMatchData(block) {
     fetch(`${soccerBlockUrl}/match?team=${teamId}`)
         .then(response => response.json())
         .then(data => {
-            if (!data) {
-                block.innerHTML = `Nenhum resultado encontrado`;
+            console.log(data);
+            if (!data || !data.id) {
+                block.innerHTML = langCode === 'pt' ? 'Nenhuma partida encontrada' : langCode === 'es' ? 'Ningún partido encontrado' : 'No match found';
+                block.style.display = 'flex';
                 return;
             }
 
