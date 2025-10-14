@@ -19,7 +19,7 @@ if (class_exists(PucFactory::class)) {
 /**
  * Plugin Name: GProdemi
  * Description: Plugin grupo Prodemi.
- * Version: 0.0.5
+ * Version: 0.0.6
  * Author: Prodemi
  * Author URI: https://prodemi.com.br
  * License: Apache License 2.0
