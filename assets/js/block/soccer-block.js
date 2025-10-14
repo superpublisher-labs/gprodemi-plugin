@@ -118,16 +118,20 @@ function updateMatchData(block) {
                 </div>
                 <div class="soccer-block-score">
                     <div class="soccer-block-score-header">
-                        <span class="soccer-block-score-date">${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         ${dataTeam?.live ?
-                        '<span class="soccer-block-score-live">' + (langCode === 'pt' ? 'Ao vivo' : langCode === 'es' ? 'En vivo' : 'Live') + '</span>'
-                        : ''}
+                        `<span class="soccer-block-score-live">${(langCode === 'pt' ? 'Ao vivo' : langCode === 'es' ? 'En vivo' : 'Live')}</span>`
+                        :
+                        `<span class="soccer-block-score-date">${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`
+                    }
                     </div>
                     <div class="soccer-block-score-content">
                         <p class="soccer-block-score-content-scoreboard">${dataTeam?.score?.home ?? ''} - ${dataTeam?.score?.away ?? ''}</p>
                         <div class="soccer-block-score-content-time">
                             <p>${dataTeam?.status?.long[langCode || 'en'] ?? ''}</p>
-                            <p class="game-time-counter"></p>
+                            <div class="soccer-block-score-content-time-content">
+                                <p class="game-time-counter"></p>
+                                ${dataTeam?.status?.extra ? `<span>+${dataTeam?.status?.extra}\’</span>` : ''}
+                            </div>
                         </div>
                     </div>
                 </div>
