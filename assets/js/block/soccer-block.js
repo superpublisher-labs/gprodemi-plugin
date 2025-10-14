@@ -126,7 +126,7 @@ function updateMatchData(block) {
                     </div>
                     <div class="soccer-block-score">
                         <div class="soccer-block-score-header">
-                            ${dataTeam?.live ? `<span class="soccer-block-score-live"></span>` : ''}
+                            ${dataTeam?.live ? `<span class="soccer-block-score-live"></span>` :  `<span class="soccer-block-score-date">${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>` }
                             <span class="soccer-block-score-date"></span>
                         </div>
                         <div class="soccer-block-score-content">
