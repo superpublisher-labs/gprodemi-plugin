@@ -1,6 +1,6 @@
 const { registerBlockType } = wp.blocks;
 const { InspectorControls } = wp.blockEditor || wp.editor;
-const { PanelBody, TextControl, Button, ToggleControl, TextareaControl } = wp.components;
+const { PanelBody, TextControl, Button, ToggleControl, TextareaControl, ComboboxControl } = wp.components;
 const { createElement, Fragment } = wp.element;
 const { MediaUpload, MediaUploadCheck } = wp.blockEditor || wp.editor;
 const { __ } = wp.i18n;
@@ -34,7 +34,7 @@ function getRedirectMessage(redirect) {
     const fullLocale = GProdemiSettings.idioma || 'default';
     const langCode = fullLocale.substring(0, 2);
     const idioma = dict[langCode] || dict.default;
-    
+
     return idioma.rediret[String(redirect || false)];
 }
 
@@ -654,6 +654,204 @@ if (GProdemiSettings.blocks.faqBlock) {
                         )
                     ),
                 ),
+            );
+        },
+    });
+}
+
+if (GProdemiSettings.blocks.soccerBlock) {
+    // ========================================================================
+    // 1. DESESTRUTURAÇÃO DOS PACOTES DO WORDPRESS
+    // ========================================================================
+    const { registerBlockType } = wp.blocks;
+    const { createElement, useState, useEffect, Fragment } = wp.element;
+    const { InspectorControls } = wp.blockEditor;
+    const { PanelBody, Button, TextControl, Spinner } = wp.components;
+    const { dispatch } = wp.data;
+
+    registerBlockType('gprodemi/soccer-block', {
+        title: 'Futebol',
+        icon: 'flag',
+        category: 'gprodemi-blocks',
+
+        attributes: {
+            team: { type: 'string', default: '' },
+            team_name: { type: 'string', default: '' },
+            team_placeholder: {
+                type: 'string',
+                default: 'https://bjjl.smoothcomp.com/build/webpack/img/placeholder-image-logo-darker.98a13d685c449351f91f..png'
+            }
+        },
+
+        example: {
+            attributes: {
+                team_name: 'Casa',
+                team_placeholder: 'https://bjjl.smoothcomp.com/build/webpack/img/placeholder-image-logo-darker.98a13d685c449351f91f..png'
+            }
+        },
+
+        // ========================================================================
+        // 2. FUNÇÃO EDIT COM DROPDOWN PERSONALIZADO
+        // ========================================================================
+        edit: function ({ attributes, setAttributes, clientId }) {
+            const { team, team_name } = attributes;
+
+            const [options, setOptions] = useState([]);
+            const [search, setSearch] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [showDropdown, setShowDropdown] = useState(false); // Estado para controlar a lista
+
+            const removeBlock = function () {
+                dispatch('core/block-editor').removeBlock(clientId);
+            };
+
+            useEffect(() => {
+                if (!search) {
+                    setOptions([]);
+                    setShowDropdown(false);
+                    return;
+                }
+
+                setIsLoading(true);
+                const timeout = setTimeout(() => {
+                    fetch(`https://soccer-api.test/api/v1/teams?name=${encodeURIComponent(search)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const formattedOptions = data.map(team => ({
+                                id: team.id, // Renomeado para não conflitar com value
+                                name: `${team.name} - ${team.country}`,
+                            }));
+                            setOptions(formattedOptions);
+                            setShowDropdown(true); // Mostra o dropdown quando os resultados chegam
+                            setIsLoading(false);
+                        })
+                        .catch(err => {
+                            console.error("Erro ao buscar API:", err);
+                            setIsLoading(false);
+                        });
+                }, 500);
+
+                return () => clearTimeout(timeout);
+            }, [search]);
+            
+            const handleSelectTeam = (selectedTeam) => {
+                setAttributes({ team: String(selectedTeam.id), team_name: selectedTeam.name });
+                setSearch('');
+                setOptions([]);
+                setShowDropdown(false);
+            };
+
+            const clearSelection = () => {
+                setAttributes({ team: '', team_name: '' });
+                setSearch('');
+                setOptions([]);
+            };
+
+            return createElement(
+                Fragment,
+                null,
+                createElement(
+                    InspectorControls,
+                    null,
+                    createElement(
+                        PanelBody,
+                        { title: 'Configurações do time', initialOpen: true },
+
+                        !team && createElement(
+                            'div',
+                            { style: { position: 'relative' } }, // Container para o posicionamento da lista
+                            createElement(TextControl, {
+                                label: 'Pesquisar time',
+                                value: search, // Controlado pelo estado 'search'
+                                onChange: (value) => setSearch(value),
+                                onFocus: () => {
+                                    if(options.length > 0) setShowDropdown(true);
+                                },
+                                onBlur: () => {
+                                    // Delay para permitir o clique na lista antes de ela sumir
+                                    setTimeout(() => setShowDropdown(false), 200);
+                                },
+                            }),
+                            isLoading && createElement(Spinner),
+                            showDropdown && options.length > 0 && createElement(
+                                'div',
+                                {
+                                    style: {
+                                        position: 'absolute',
+                                        background: 'white',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '4px',
+                                        width: '100%',
+                                        maxHeight: '200px',
+                                        overflowY: 'auto',
+                                        zIndex: 10,
+                                        marginTop: '-8px'
+                                    }
+                                },
+                                options.map(option => createElement(
+                                    'div',
+                                    {
+                                        key: option.id,
+                                        style: { padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #eee' },
+                                        // onMouseDown previne que o onBlur do input seja acionado antes do clique
+                                        onMouseDown: () => handleSelectTeam(option), 
+                                    },
+                                    option.name
+                                ))
+                            )
+                        ),
+
+                        team && createElement(
+                            'div',
+                            null,
+                            createElement('p', { style: { margin: 0 } }, 'Time selecionado:'),
+                            createElement('strong', null, team_name),
+                            createElement(Button, {
+                                isLink: true,
+                                isDestructive: true,
+                                onClick: clearSelection,
+                                style: { display: 'block', marginTop: '8px' }
+                            }, 'Alterar time')
+                        ),
+
+                        createElement(
+                            'div',
+                            { style: { marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' } },
+                            createElement(
+                                Button,
+                                { isDestructive: true, isPrimary: true, onClick: removeBlock },
+                                'Excluir Bloco'
+                            )
+                        )
+                    )
+                ),
+                // Preview do bloco
+                createElement(
+                    'div',
+                    { className: 'block-soccer-block', 'team-soccer-block': attributes.team },
+                    createElement('div', { className: 'soccer-block-team' },
+                        createElement('img', { src: attributes.team_placeholder }),
+                        createElement('p', {}, team_name || 'Casa')
+                    ),
+                    createElement('div', { className: 'soccer-block-score' },
+                        createElement('span', { className: 'soccer-block-score-date' }, new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
+                        createElement('div', { className: 'soccer-block-score-content' },
+                            createElement('p', {}, '0 - 0'),
+                            createElement('p', {}, '21:24')
+                        )
+                    ),
+                    createElement('div', { className: 'soccer-block-team' },
+                        createElement('img', { src: attributes.team_placeholder }),
+                        createElement('p', {}, 'Visitante')
+                    ),
+                ),
+            );
+        },
+
+        save: ({ attributes }) => {
+            return createElement(
+                'div',
+                { className: 'soccer-block', 'data-team-id': attributes.team }
             );
         },
     });

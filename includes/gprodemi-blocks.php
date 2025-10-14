@@ -47,6 +47,8 @@ add_action('enqueue_block_editor_assets', function () {
             'linksRelated'  => get_option('gprodemi_links_related', 1),
             'readMore'      => get_option('gprodemi_read_more', 1),
             'faqBlock'      => get_option('gprodemi_faq_block', 1),
+            'soccerBlock'   => get_option('gprodemi_soccer_block', 1),
+            'soccerBlockUrl' => get_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/'),
         ]
     ]);
 });
@@ -57,6 +59,8 @@ add_action('init', function () {
         'gprodemi/links-related'  => get_option('gprodemi_links_related', 1),
         'gprodemi/read-more'      => get_option('gprodemi_read_more', 1),
         'gprodemi/faq-block'      => get_option('gprodemi_faq_block', 1),
+        'gprodemi/soccer-block'      => get_option('gprodemi_soccer_block', 1),
+        'gprodemi/soccer-block-url' => get_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/'),
     ];
 
     foreach ($blocks as $block_name => $active) {
@@ -81,6 +85,8 @@ add_filter('allowed_block_types_all', function ($allowed_blocks, $editor_context
         'gprodemi/links-related'  => get_option('gprodemi_links_related', 0),
         'gprodemi/read-more'      => get_option('gprodemi_read_more', 0),
         'gprodemi/faq-block'      => get_option('gprodemi_faq_block', 0),
+        'gprodemi/soccer-block'   => get_option('gprodemi_soccer_block', 0),
+        'gprodemi/soccer-block-url' => get_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/'),
     ];
 
     return array_filter($allowed_blocks, function ($block) use ($gprodemi_blocks) {
@@ -90,3 +96,11 @@ add_filter('allowed_block_types_all', function ($allowed_blocks, $editor_context
         return true;
     });
 }, 10, 2);
+
+add_action('wp_enqueue_scripts', function () {
+    wp_enqueue_script('gprodemi-soccer-block', plugins_url('../assets/js/block/soccer-block.js', __FILE__), ['jquery'], null, true);
+    wp_localize_script('gprodemi-soccer-block', 'GProdemiSettings', [
+        'soccerBlockUrl' => get_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/'),
+        'idioma' => get_locale(),
+    ]);
+});
