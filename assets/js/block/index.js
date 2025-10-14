@@ -851,7 +851,7 @@ if (GProdemiSettings.blocks.soccerBlock) {
         save: ({ attributes }) => {
             return createElement(
                 'div',
-                { className: 'soccer-block', 'data-team-id': attributes.team }
+                { className: 'soccer-block', 'data-team-id': attributes.team, style: { display: 'none' } }
             );
         },
     });
