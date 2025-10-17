@@ -1,9 +1,10 @@
 const { registerBlockType } = wp.blocks;
 const { InspectorControls } = wp.blockEditor || wp.editor;
-const { PanelBody, TextControl, Button, ToggleControl, TextareaControl, ComboboxControl } = wp.components;
-const { createElement, Fragment } = wp.element;
+const { PanelBody, TextControl, Button, ToggleControl, TextareaControl, ComboboxControl, Spinner } = wp.components;
+const { createElement, Fragment, useState, useEffect } = wp.element;
 const { MediaUpload, MediaUploadCheck } = wp.blockEditor || wp.editor;
 const { __ } = wp.i18n;
+const { dispatch } = wp.data;
 
 const dict = {
     'pt': {
@@ -660,15 +661,6 @@ if (GProdemiSettings.blocks.faqBlock) {
 }
 
 if (GProdemiSettings.blocks.soccerBlock) {
-    // ========================================================================
-    // 1. DESESTRUTURAÇÃO DOS PACOTES DO WORDPRESS
-    // ========================================================================
-    const { registerBlockType } = wp.blocks;
-    const { createElement, useState, useEffect, Fragment } = wp.element;
-    const { InspectorControls } = wp.blockEditor;
-    const { PanelBody, Button, TextControl, Spinner } = wp.components;
-    const { dispatch } = wp.data;
-
     registerBlockType('gprodemi/soccer-block', {
         title: 'Futebol',
         icon: 'flag',
@@ -690,9 +682,6 @@ if (GProdemiSettings.blocks.soccerBlock) {
             }
         },
 
-        // ========================================================================
-        // 2. FUNÇÃO EDIT COM DROPDOWN PERSONALIZADO
-        // ========================================================================
         edit: function ({ attributes, setAttributes, clientId }) {
             const { team, team_name } = attributes;
 

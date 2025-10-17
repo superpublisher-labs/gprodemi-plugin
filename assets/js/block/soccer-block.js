@@ -39,52 +39,74 @@ function startTimer(block, dataTeam) {
     const timeElement = block.querySelector('.game-time-counter');
     if (!timeElement) return;
 
+    const apiMinutes = dataTeam.status.elapsed;
+    if (apiMinutes === null || apiMinutes === undefined) {
+        return; 
+    }
+    
     let startTime = null;
-    let isSecondHalf = false;
 
     if (dataTeam.status.short === '1H' && dataTeam.status.periods?.first) {
         startTime = new Date(dataTeam.status.periods.first * 1000);
     } else if (dataTeam.status.short === '2H' && dataTeam.status.periods?.second) {
         startTime = new Date(dataTeam.status.periods.second * 1000);
-        isSecondHalf = true;
     }
 
     if (startTime) {
         const timerId = setInterval(() => {
             const now = new Date();
-            const diff = now - startTime;
+            
+            const diffMs = now - startTime;
 
-            let minutes = Math.floor(diff / 60000);
-            let seconds = Math.floor((diff % 60000) / 1000);
+            let secondsFromTimestamp = Math.floor((diffMs % 60000) / 1000);
 
-            if (isSecondHalf) {
-                minutes += 45;
+            const finalMinutes = apiMinutes; 
+
+            if (secondsFromTimestamp < 0) {
+                secondsFromTimestamp = 0;
             }
 
-            if (minutes > 150) {
+            if (finalMinutes > 150) {
                 clearInterval(timerId);
                 return;
             }
 
-            timeElement.innerText = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timeElement.innerText = `${String(finalMinutes).padStart(2, '0')}:${String(secondsFromTimestamp).padStart(2, '0')}`;
         }, 1000);
 
         block.dataset.timerId = timerId;
     }
 }
 
-
 function updateMatchData(block) {
     const teamId = block.getAttribute('data-team-id');
-    const langCode = (GProdemiSettings.idioma || 'en').substring(0, 2);
-    const soccerBlockUrl = GProdemiSettings.soccerBlockUrl;
+    const soccerBlockUrl = GProdemiSettings?.soccerBlockUrl;
+    const pageLang = document.documentElement.lang || 'en';
+    const userLang = navigator.language || 'en-US';
+    const systemLang = (GProdemiSettings?.idioma || 'en').replace('_', '-');
 
-    fetch(`${soccerBlockUrl}/match?team=${teamId}`)
+    let finalLang;
+
+    if (userLang.toLowerCase().startsWith(pageLang.toLowerCase())) {
+        finalLang = userLang;
+    } else if (systemLang.toLowerCase().startsWith(pageLang.toLowerCase())) {
+        finalLang = systemLang;
+    } else {
+        finalLang = pageLang;
+    }
+
+    finalLang = finalLang
+        .split('-')
+        .map((part, index) =>
+            index === 0 ? part.toLowerCase() : part.toUpperCase()
+        )
+        .join('-').replace('_', '-').toLowerCase();
+
+    fetch(`${soccerBlockUrl}/match?team=${teamId}&lang=${finalLang}`)
         .then(response => response.json())
         .then(data => {
             if (!data || !data.id) {
-                block.innerHTML = langCode === 'pt' ? 'Nenhuma partida encontrada' : langCode === 'es' ? 'Ningún partido encontrado' : 'No match found';
-                block.style.display = 'flex';
+                block.style.display = 'none';
                 return;
             }
 
@@ -104,8 +126,8 @@ function updateMatchData(block) {
 
                     const statusTextElement = block.querySelector('.game-status-text');
                     if (statusTextElement) {
-                        const originalStatusText = dataTeam?.status?.long[langCode || 'en'] ?? '';
-                        statusTextElement.innerText = langCode === 'pt' ? 'Gol!' : langCode === 'es' ? '¡Gol!' : 'Goal!';
+                        const originalStatusText = dataTeam?.status?.long;
+                        statusTextElement.innerText = dataTeam?.status?.goal;
                         statusTextElement.classList.add('goal-notification');
 
                         setTimeout(() => {
@@ -126,13 +148,13 @@ function updateMatchData(block) {
                     </div>
                     <div class="soccer-block-score">
                         <div class="soccer-block-score-header">
-                            ${dataTeam?.live ? `<span class="soccer-block-score-live"></span>` :  `<span class="soccer-block-score-date">${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>` }
+                            ${dataTeam?.live ? `<span class="soccer-block-score-live"></span>` : `<span class="soccer-block-score-date">${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`}
                             <span class="soccer-block-score-date"></span>
                         </div>
                         <div class="soccer-block-score-content">
                             <p class="soccer-block-score-content-scoreboard">${newHomeScore} - ${newAwayScore}</p>
                             <div class="soccer-block-score-content-time">
-                                <p class="game-status-text">${dataTeam?.status?.long[langCode || 'en'] ?? ''}</p>
+                                <p class="game-status-text">${dataTeam?.status?.long}</p>
                                 <div class="soccer-block-score-content-time-content">
                                     <p class="game-time-counter"></p>
                                     ${dataTeam?.status?.extra ? `<span class="game-extra-time">+${dataTeam?.status?.extra}'</span>` : ''}
@@ -151,7 +173,7 @@ function updateMatchData(block) {
 
             const statusTextElement = block.querySelector('.game-status-text');
             if (statusTextElement && !statusTextElement.classList.contains('goal-notification')) {
-                statusTextElement.innerText = dataTeam?.status?.long[langCode || 'en'] ?? '';
+                statusTextElement.innerText = dataTeam?.status?.long;
             }
 
             block.querySelector('.soccer-block-score-content-scoreboard').innerText = `${newHomeScore} - ${newAwayScore}`;
@@ -166,7 +188,7 @@ function updateMatchData(block) {
 
             if (liveIndicator && dateIndicator) {
                 if (dataTeam?.live) {
-                    liveIndicator.innerText = (langCode === 'pt' ? 'Ao vivo' : langCode === 'es' ? 'En vivo' : 'Live');
+                    liveIndicator.innerText = 'Live';
                     dateIndicator.innerText = '';
                 } else {
                     liveIndicator.innerText = '';
