@@ -32,61 +32,13 @@ function startCountdown(block, gameDate) {
     block.dataset.countdownId = countdownId;
 }
 
-
-function startTimer(block, dataTeam) {
-    if (block.dataset.timerId) return;
-
-    const timeElement = block.querySelector('.game-time-counter');
-    if (!timeElement) return;
-
-    const apiMinutes = dataTeam.status.elapsed;
-    if (apiMinutes === null || apiMinutes === undefined) {
-        return; 
-    }
-    
-    let startTime = null;
-
-    if (dataTeam.status.short === '1H' && dataTeam.status.periods?.first) {
-        startTime = new Date(dataTeam.status.periods.first * 1000);
-    } else if (dataTeam.status.short === '2H' && dataTeam.status.periods?.second) {
-        startTime = new Date(dataTeam.status.periods.second * 1000);
-    }
-
-    if (startTime) {
-        const timerId = setInterval(() => {
-            const now = new Date();
-            
-            const diffMs = now - startTime;
-
-            let secondsFromTimestamp = Math.floor((diffMs % 60000) / 1000);
-
-            const finalMinutes = apiMinutes; 
-
-            if (secondsFromTimestamp < 0) {
-                secondsFromTimestamp = 0;
-            }
-
-            if (finalMinutes > 150) {
-                clearInterval(timerId);
-                return;
-            }
-
-            timeElement.innerText = `${String(finalMinutes).padStart(2, '0')}:${String(secondsFromTimestamp).padStart(2, '0')}`;
-        }, 1000);
-
-        block.dataset.timerId = timerId;
-    }
-}
-
 function updateMatchData(block) {
     const teamId = block.getAttribute('data-team-id');
     const soccerBlockUrl = GProdemiSettings?.soccerBlockUrl;
     const pageLang = document.documentElement.lang || 'en';
     const userLang = navigator.language || 'en-US';
     const systemLang = (GProdemiSettings?.idioma || 'en').replace('_', '-');
-
     let finalLang;
-
     if (userLang.toLowerCase().startsWith(pageLang.toLowerCase())) {
         finalLang = userLang;
     } else if (systemLang.toLowerCase().startsWith(pageLang.toLowerCase())) {
@@ -94,7 +46,6 @@ function updateMatchData(block) {
     } else {
         finalLang = pageLang;
     }
-
     finalLang = finalLang
         .split('-')
         .map((part, index) =>
@@ -116,83 +67,108 @@ function updateMatchData(block) {
             const newAwayScore = data.score?.away ?? '';
 
             if (isInitialized) {
-                const oldHomeScore = block.dataset.homeScore;
-                const oldAwayScore = block.dataset.awayScore;
-                const scoreboardElement = block.querySelector('.soccer-block-score-content-scoreboard');
+                const oldHome = parseInt(block.dataset.homeScore, 10) || 0;
+                const oldAway = parseInt(block.dataset.awayScore, 10) || 0;
 
-                if (scoreboardElement && (newHomeScore.toString() !== oldHomeScore || newAwayScore.toString() !== oldAwayScore)) {
-                    scoreboardElement.classList.add('goal-animation');
-                    setTimeout(() => scoreboardElement.classList.remove('goal-animation'), 10000);
+                const newHome = parseInt(newHomeScore, 10) || 0;
+                const newAway = parseInt(newAwayScore, 10) || 0;
 
-                    const statusTextElement = block.querySelector('.game-status-text');
-                    if (statusTextElement) {
-                        const originalStatusText = dataTeam?.status?.long;
-                        statusTextElement.innerText = dataTeam?.status?.goal;
-                        statusTextElement.classList.add('goal-notification');
+                const didHomeScore = newHome > oldHome;
+                const didAwayScore = newAway > oldAway;
+                const goalText = dataTeam.status.goal;
+
+                if ((didHomeScore || didAwayScore) && goalText) {
+
+                    const goalElement = block.querySelector('.soccer-block-goal-notification');
+                    if (goalElement) {
+                        goalElement.innerText = goalText;
+                        goalElement.classList.add('visible');
 
                         setTimeout(() => {
-                            statusTextElement.innerText = originalStatusText;
-                            statusTextElement.classList.remove('goal-notification');
-                        }, 6000);
+                            goalElement.innerText = '';
+                            goalElement.classList.remove('visible');
+                        }, 10000);
+                    }
+
+                    const scoreContainer = block.querySelector('.soccer-block-score-content');
+                    if (scoreContainer) {
+                        scoreContainer.classList.add('goal-animation');
+
+                        setTimeout(() => {
+                            scoreContainer.classList.remove('goal-animation');
+                        }, 10000);
                     }
                 }
             }
+
             block.dataset.homeScore = newHomeScore;
             block.dataset.awayScore = newAwayScore;
 
             if (!isInitialized) {
                 block.innerHTML = `
-                    <div class="soccer-block-team">
-                        <div class="soccer-block-team-img"><img src="${dataTeam?.teams?.home?.logo}" alt="${dataTeam?.teams?.home?.name} logo"></div>
-                        <p>${dataTeam?.teams?.home?.name}</p>
+                <div class="soccer-block-score-header">
+                    ${dataTeam?.live
+                        ? `<span class="soccer-block-score-live">Live</span>`
+                        : `<span class="soccer-block-score-date">
+                            ${new Date(dataTeam.date).toLocaleDateString()} 
+                            ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>`
+                    }
+                </div>
+                <div class="soccer-block-team">
+                    <div class="soccer-block-team-img">
+                        <img src="${dataTeam?.teams?.home?.logo}" alt="${dataTeam?.teams?.home?.name}">
                     </div>
-                    <div class="soccer-block-score">
-                        <div class="soccer-block-score-header">
-                            ${dataTeam?.live ? `<span class="soccer-block-score-live"></span>` : `<span class="soccer-block-score-date">${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>`}
-                            <span class="soccer-block-score-date"></span>
+                    <p>${dataTeam?.teams?.home?.name}</p>
+                </div>
+                <div class="soccer-block-score">
+                    
+                    <div class="soccer-block-score-content">
+                        <div class="soccer-block-score-content-scoreboard">${newHomeScore}</div>
+                        
+                        <div class="soccer-block-score-content-time game-time-counter"> 
+                            ${dataTeam?.status?.elapsed
+                        ? `${dataTeam.status.elapsed}${dataTeam?.status?.extra ? `+${dataTeam?.status?.extra}` : ''}’`
+                        : `${dataTeam?.status?.long || ''}`
+                    }
                         </div>
-                        <div class="soccer-block-score-content">
-                            <p class="soccer-block-score-content-scoreboard">${newHomeScore} - ${newAwayScore}</p>
-                            <div class="soccer-block-score-content-time">
-                                <p class="game-status-text">${dataTeam?.status?.long}</p>
-                                <div class="soccer-block-score-content-time-content">
-                                    <p class="game-time-counter"></p>
-                                    ${dataTeam?.status?.extra ? `<span class="game-extra-time">+${dataTeam?.status?.extra}'</span>` : ''}
-                                </div>
-                            </div>
-                        </div>
+
+                        <div class="soccer-block-score-content-scoreboard">${newAwayScore}</div>
                     </div>
-                    <div class="soccer-block-team">
-                        <div class="soccer-block-team-img"><img src="${dataTeam?.teams?.away?.logo}" alt="${dataTeam?.teams?.away?.name} logo"></div>
-                        <p>${dataTeam?.teams?.away?.name}</p>
+                </div>
+                <div class="soccer-block-team">
+                    <div class="soccer-block-team-img">
+                        <img src="${dataTeam?.teams?.away?.logo}" alt="${dataTeam?.teams?.away?.name}">
                     </div>
-                `;
+                    <p>${dataTeam?.teams?.away?.name}</p>
+                </div>
+                <span class="soccer-block-goal-notification"></span>`;
                 block.dataset.initialized = "true";
                 block.style.display = 'flex';
-            }
+            } else {
+                const scoreElements = block.querySelectorAll('.soccer-block-score-content-scoreboard');
+                if (scoreElements.length === 2) {
+                    scoreElements[0].innerText = newHomeScore;
+                    scoreElements[1].innerText = newAwayScore;
+                }
 
-            const statusTextElement = block.querySelector('.game-status-text');
-            if (statusTextElement && !statusTextElement.classList.contains('goal-notification')) {
-                statusTextElement.innerText = dataTeam?.status?.long;
-            }
+                const timeElement = block.querySelector('.game-time-counter');
+                if (timeElement) {
+                    if (!block.dataset.countdownId) {
+                        timeElement.innerText = dataTeam?.status?.elapsed
+                            ? `${dataTeam.status.elapsed}${dataTeam?.status?.extra ? `+${dataTeam?.status?.extra}` : ''}’`
+                            : `${dataTeam?.status?.long || ''}`;
+                    }
+                }
 
-            block.querySelector('.soccer-block-score-content-scoreboard').innerText = `${newHomeScore} - ${newAwayScore}`;
-
-            const extraTimeElement = block.querySelector('.game-extra-time');
-            if (extraTimeElement) {
-                extraTimeElement.innerText = dataTeam?.status?.extra && (dataTeam?.status?.short === '1H' || dataTeam?.status?.short === '2H' || dataTeam?.status?.short === 'ET') ? `+${dataTeam?.status?.extra}'` : '';
-            }
-
-            const liveIndicator = block.querySelector('.soccer-block-score-live');
-            const dateIndicator = block.querySelector('.soccer-block-score-date');
-
-            if (liveIndicator && dateIndicator) {
-                if (dataTeam?.live) {
-                    liveIndicator.innerText = 'Live';
-                    dateIndicator.innerText = '';
-                } else {
-                    liveIndicator.innerText = '';
-                    dateIndicator.innerText = `${new Date(dataTeam.date).toLocaleDateString()} ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                const date = block.querySelector('.soccer-block-score-header');
+                if (date) {
+                    date.innerHTML = dataTeam?.live
+                        ? `<span class="soccer-block-score-live">Live</span>`
+                        : `<span class="soccer-block-score-date">
+                            ${new Date(dataTeam.date).toLocaleDateString()} 
+                            ${new Date(dataTeam.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>`
                 }
             }
 
@@ -202,18 +178,20 @@ function updateMatchData(block) {
                 clearInterval(parseInt(block.dataset.countdownId, 10));
                 delete block.dataset.countdownId;
             }
-            if (['NS', 'TBD', 'FT', 'HT', 'PST', 'CANC'].includes(status) && block.dataset.timerId) {
-                clearInterval(parseInt(block.dataset.timerId, 10));
-                delete block.dataset.timerId;
-            }
 
             if (status === 'NS' || status === 'TBD') {
                 startCountdown(block, data.date);
-            } else if (['1H', '2H'].includes(status)) {
-                startTimer(block, data);
+            }
+
+            if (['FT', 'HT', 'PST', 'CANC'].includes(status)) {
+                const timeElement = block.querySelector('.game-time-counter');
+                if (timeElement && !block.dataset.countdownId) {
+                    timeElement.innerText = dataTeam?.status?.long || '';
+                }
             }
 
             let nextPollInterval = 30000;
+
             if (['FT', 'AET', 'PEN', 'CANC', 'PST'].includes(status)) {
                 return;
             } else if (status === 'NS' || status === 'TBD') {
