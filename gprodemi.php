@@ -19,7 +19,7 @@ if (class_exists(PucFactory::class)) {
 /**
  * Plugin Name: GProdemi
  * Description: Plugin grupo Prodemi.
- * Version: 0.0.9
+ * Version: 0.0.10
  * Author: Prodemi
  * Author URI: https://prodemi.com.br
  * License: Apache License 2.0
@@ -28,7 +28,7 @@ if (class_exists(PucFactory::class)) {
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
-if (! defined('ABSPATH')) {
+if (!defined('ABSPATH')) {
 	exit;
 }
 

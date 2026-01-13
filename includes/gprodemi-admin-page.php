@@ -1,5 +1,6 @@
 <?php
-if (! defined('ABSPATH')) exit;
+if (!defined('ABSPATH'))
+    exit;
 
 add_action('admin_menu', function () {
     add_menu_page(
@@ -21,7 +22,7 @@ function gprodemi_admin_page()
     $read_more_active = get_option('gprodemi_read_more', 1);
     $faq_block_active = get_option('gprodemi_faq_block', 1);
     $soccer_block_active = get_option('gprodemi_soccer_block', 1);
-    $soccer_block_url = get_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/');
+    $soccer_block_url = get_option('gprodemi_soccer_block_url', 'https://soccerapi.grupoprodemi.com/');
 
     // Salva se o formulário for enviado
     if (isset($_POST['save_gprodemi_blocks'])) {
@@ -41,7 +42,7 @@ function gprodemi_admin_page()
 
             update_option('gprodemi_soccer_block_url', $url);
         } else {
-            update_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/');
+            update_option('gprodemi_soccer_block_url', 'https://soccerapi.grupoprodemi.com/');
         }
 
         echo '<div class="notice notice-success"><p>Configurações salvas!</p></div>';
@@ -52,9 +53,9 @@ function gprodemi_admin_page()
         $read_more_active = get_option('gprodemi_read_more', 1);
         $faq_block_active = get_option('gprodemi_faq_block', 1);
         $soccer_block_active = get_option('gprodemi_soccer_block', 1);
-        $soccer_block_url = get_option('gprodemi_soccer_block_url', 'http://soccerapi.grupoprodemi.com/');
+        $soccer_block_url = get_option('gprodemi_soccer_block_url', 'https://soccerapi.grupoprodemi.com/');
     }
-?>
+    ?>
     <div class="wrap">
         <h1>GProdemi</h1>
         <form method="post">
@@ -83,17 +84,20 @@ function gprodemi_admin_page()
                     <input type="checkbox" id="soccer_block" name="soccer_block" value="1" <?php checked($soccer_block_active, 1); ?>>
                     Bloco de Futebol
                 </label><br>
-                <input type="text" name="soccer_block_url" id="soccer_block_url" value="<?php echo $soccer_block_url; ?>" placeholder="https://urlda.api/">
-                <span>A requisição espera endpoints da com os parâmetros: /match?team=id_do_time e /teams?name=nome_do_time</span>
+                <input type="text" name="soccer_block_url" id="soccer_block_url" value="<?php echo $soccer_block_url; ?>"
+                    placeholder="https://urlda.api/">
+                <span>A requisição espera endpoints da com os parâmetros: /match?team=id_do_time e
+                    /teams?name=nome_do_time</span>
             </div>
 
-            <input type="submit" name="save_gprodemi_blocks" value="Salvar Configurações" class="button button-primary" style="margin-top: 1rem;">
+            <input type="submit" name="save_gprodemi_blocks" value="Salvar Configurações" class="button button-primary"
+                style="margin-top: 1rem;">
         </form>
     </div>
     <script>
-        document.getElementById('soccer_block').addEventListener('change', function() {
+        document.getElementById('soccer_block').addEventListener('change', function () {
             document.getElementById('soccer_block_url').disabled = !this.checked;
         });
     </script>
-<?php
+    <?php
 }
