@@ -1,8 +1,7 @@
 <?php
-if (!defined('ABSPATH'))
-    exit;
 
-// Categoria personalizada
+if (!defined('ABSPATH')) exit;
+
 add_filter('block_categories_all', function ($categories) {
     $new_category = [
         [
@@ -14,7 +13,6 @@ add_filter('block_categories_all', function ($categories) {
     return array_merge($new_category, $categories);
 }, 10, 2);
 
-// Enfileira scripts e estilos do editor
 add_action('enqueue_block_editor_assets', function () {
     wp_enqueue_style(
         'theme-tailwind',
