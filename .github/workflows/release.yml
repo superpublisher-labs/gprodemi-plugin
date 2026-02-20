@@ -24,20 +24,16 @@ jobs:
       - name: Instalar dependências
         run: composer install --no-dev --optimize-autoloader
 
-      - name: Remover pastas indesejada
+      - name: Remover assets servidos via CDN
         run: rm -rf assets/css
 
-      - name: Remover pastas indesejada
-        run: zip -r release.zip . \
-          -x ".git/*" \
-          -x ".github/*"
+      - name: Zipar build com versão
+        run: |
+          zip -r gprodemi-${{ github.ref_name }}.zip . \
+            -x ".git/*" \
+            -x ".github/*"
 
-      # opcional
-      - name: Zipar build
-        run: zip -r release.zip . -x "*.git*"
-
-      # opcional
       - name: Upload artefato da release
         uses: softprops/action-gh-release@v1
         with:
-          files: release.zip
+          files: gprodemi-${{ github.ref_name }}.zip
