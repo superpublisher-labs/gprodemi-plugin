@@ -1,0 +1,40 @@
+name: Release build
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer
+
+      - name: Instalar dependências
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Remover pastas indesejada
+        run: rm -rf assets/css
+
+      - name: Remover pastas indesejada
+        run: zip -r release.zip . \
+          -x ".git/*" \
+          -x ".github/*"
+
+      # opcional
+      - name: Zipar build
+        run: zip -r release.zip . -x "*.git*"
+
+      # opcional
+      - name: Upload artefato da release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release.zip

@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name: GProdemi (experimental branch)
- * Description: Plugin grupo Prodemi (experimental branch) - Sem update e fora da branch principal.
- * Version: 0.0.11-alpha
+ * Plugin Name: GProdemi
+ * Description: Plugin grupo Prodemi
+ * Version: 0.0.11
  * Author: Prodemi
  * Author URI: https://prodemi.com.br
  * License: Apache License 2.0
@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) exit;
 
 require_once __DIR__ . '/config.php';
 
-// require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-update-checker.php';
+require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-update-checker.php';
 require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-plugin-actions.php';
 require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-enqueue-block-styles.php';
 require_once GPRODEMI_PLUGIN_DIR . 'includes/gprodemi-admin-page.php';
